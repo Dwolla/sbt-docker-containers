@@ -12,20 +12,37 @@ object DockerContainerPlugin extends AutoPlugin {
 
   import DockerPlugin.autoImport._
   import autoImport._
+  import DockerCommandLineOptions._
 
   override def requires = DockerPlugin
 
   lazy val defaultValues = Seq(
     dockerContainerName := name.value,
     (version in createLocal) := version.value,
-    dockerContainerMemoryLimit := None
+    dockerContainerMemoryLimit := None,
+    dockerContainerAutoForwardAllPorts := false,
+    dockerContainerPortForwarding := Map.empty[Int, Option[Int]]
   )
 
   lazy val tasks = Seq(
-    createLocal <<= (dockerContainerMemoryLimit, dockerTarget in Docker, dockerContainerName, publishLocal) map { (optionalMemoryLimit, imageName, containerName, _) ⇒
-      val memoryLimit = optionalMemoryLimit.map(x ⇒ s"-m $x").getOrElse("")
+    createLocal <<= (
+      dockerContainerMemoryLimit,
+      dockerContainerPortForwarding,
+      dockerContainerAutoForwardAllPorts,
+      dockerTarget in Docker,
+      dockerContainerName,
+      publishLocal
+      ) map { (
+                optionalMemoryLimit,
+                portForwardMappings,
+                autoForwardPorts,
+                imageName,
+                containerName, _) ⇒
 
-      s"docker create --name $containerName $memoryLimit $imageName" !
+      val memoryLimit = optionalMemoryLimit.map(memoryLimitToDockerCommand).getOrElse("")
+      val portForwarding = portMappings(portForwardMappings, autoForwardPorts)
+
+      s"docker create --name $containerName $portForwarding $memoryLimit $imageName" !
 
       containerName
     },
@@ -49,4 +66,22 @@ trait DockerContainerKeys {
 
   lazy val dockerContainerName = settingKey[String]("Name of the container to be created. Defaults to project name")
   lazy val dockerContainerMemoryLimit = settingKey[Option[String]]("memory limit for created Docker container. e.g., Option('192M')")
+
+  lazy val dockerContainerPortForwarding = settingKey[Map[Int, Option[Int]]]("Docker container:host port mappings")
+  lazy val dockerContainerAutoForwardAllPorts = settingKey[Boolean]("Auto-map all exposed ports")
+}
+
+object DockerCommandLineOptions {
+  val publishPort = "-publish"
+  def publishAllExposedPorts(enabled: Boolean): String = if (enabled) "--publish-all" else ""
+
+  def memoryLimitToDockerCommand(s: String): String = s"--memory $s"
+  def portMappingToDockerCommand(tuple: (Int, Option[Int])): String = tuple match {
+    case (container: Int, maybeHost: Option[Int]) ⇒
+      val host = maybeHost.map(host ⇒ s":$host").getOrElse("")
+      s"$publishPort $container$host"
+  }
+
+  def portMappings(mappings: Map[Int, Option[Int]], autoForwardPorts: Boolean) =
+    (mappings.map(portMappingToDockerCommand).toList :+ publishAllExposedPorts(autoForwardPorts)).mkString(" ")
 }
