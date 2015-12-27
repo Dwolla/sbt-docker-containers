@@ -17,21 +17,20 @@ object DockerContainerPlugin extends AutoPlugin {
   override def requires = DockerPlugin
 
   lazy val defaultValues = Seq(
-    dockerContainerName := normalizedName.value,
-    (version in createLocal) := version.value,
+    (name in createLocalDockerContainer) := normalizedName.value,
     dockerContainerMemoryLimit := None,
     dockerContainerAutoForwardAllPorts := false,
     dockerContainerPortForwarding := Map.empty[Int, Option[Int]]
   )
 
   lazy val tasks = Seq(
-    createLocal <<= (
+    createLocalDockerContainer <<= (
       dockerContainerMemoryLimit,
       dockerContainerPortForwarding,
       dockerContainerAutoForwardAllPorts,
       dockerTarget in Docker,
-      dockerContainerName,
-      publishLocal
+      name in createLocalDockerContainer,
+      publishLocal in Docker
       ) map { (
                 optionalMemoryLimit,
                 portForwardMappings,
@@ -46,10 +45,10 @@ object DockerContainerPlugin extends AutoPlugin {
 
       containerName
     },
-    runLocal <<= createLocal map { containerName ⇒
+    runLocalDockerContainer <<= createLocalDockerContainer map { containerName ⇒
       s"docker start $containerName" !
     },
-    clean <<= (dockerContainerName, dockerTarget in Docker, clean) map { (containerName, imageName, _) ⇒
+    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, imageName, _) ⇒
       s"docker stop $containerName" !;
       s"docker rm $containerName" !;
       s"docker rmi $imageName" !
