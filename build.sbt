@@ -19,7 +19,8 @@ lazy val buildSettings = Seq(
   homepage := Some(url("https://stash.dwolla.net/projects/SUP/repos/sbt-docker-containers/browse")),
   version := buildVersion,
   scalaVersion := "2.10.6",
-  sbtPlugin := true
+  sbtPlugin := true,
+  resolvers += "artifactory" at s"$artifactoryBase/repo"
 )
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
@@ -36,6 +37,9 @@ lazy val publishSettings = Seq(
       Some("releases" at s"$artifactoryBase/libs-release-local")
   }
 )
+
+lazy val pipeline = TaskKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
+pipeline <<= test in Test
 
 val dockerTasks = (project in file("."))
   .settings(buildSettings: _*)
