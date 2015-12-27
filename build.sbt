@@ -15,7 +15,7 @@ lazy val buildVersion = {
 
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
-  name := "docker-tasks",
+  name := "docker-containers",
   homepage := Some(url("https://stash.dwolla.net/projects/SUP/repos/sbt-docker-containers/browse")),
   version := buildVersion,
   scalaVersion := "2.10.6",
@@ -41,6 +41,6 @@ lazy val publishSettings = Seq(
 lazy val pipeline = TaskKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
 pipeline <<= test in Test
 
-val dockerTasks = (project in file("."))
+val dockerContainersPlugin = (project in file("."))
   .settings(buildSettings: _*)
   .settings(publishSettings: _*)
