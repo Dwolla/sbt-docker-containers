@@ -10,14 +10,14 @@ object DockerContainerPlugin extends AutoPlugin {
 
   object autoImport extends DockerContainerKeys
 
+  import DockerCommandLineOptions._
   import DockerPlugin.autoImport._
   import autoImport._
-  import DockerCommandLineOptions._
 
   override def requires = DockerPlugin
 
   lazy val defaultValues = Seq(
-    dockerContainerName := name.value,
+    dockerContainerName := normalizedName.value,
     (version in createLocal) := version.value,
     dockerContainerMemoryLimit := None,
     dockerContainerAutoForwardAllPorts := false,
