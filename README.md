@@ -35,7 +35,7 @@ Sets the memory limit for the container. Maps to the `--memory` Docker command l
 
 When set to true, Docker will map any exposed ports not specifically assigned to a host port to ports in the ephemeral range. This maps to the `--publish-all` Docker command line option.
 
-#### dockerContainerPortPublishing
+#### `dockerContainerPortPublishing`
 
     dockerContainerPortPublishing := Map(8080 → Option(4242), 7777 → AutoAssign)
 
