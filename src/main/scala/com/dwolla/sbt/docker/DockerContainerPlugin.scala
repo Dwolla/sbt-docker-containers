@@ -19,15 +19,15 @@ object DockerContainerPlugin extends AutoPlugin {
   lazy val defaultValues = Seq(
     (name in createLocalDockerContainer) := normalizedName.value,
     dockerContainerMemoryLimit := None,
-    dockerContainerAutoForwardAllPorts := false,
-    dockerContainerPortForwarding := Map.empty[Int, Option[Int]]
+    dockerContainerPublishAllPorts := false,
+    dockerContainerPortPublishing := Map.empty[Int, Option[Int]]
   )
 
   lazy val tasks = Seq(
     createLocalDockerContainer <<= (
       dockerContainerMemoryLimit,
-      dockerContainerPortForwarding,
-      dockerContainerAutoForwardAllPorts,
+      dockerContainerPortPublishing,
+      dockerContainerPublishAllPorts,
       dockerTarget in Docker,
       name in createLocalDockerContainer,
       publishLocal in Docker
@@ -41,7 +41,7 @@ object DockerContainerPlugin extends AutoPlugin {
       val memoryLimit = optionalMemoryLimit.map(memoryLimitToDockerCommand).getOrElse("")
       val portForwarding = portMappings(portForwardMappings, autoForwardPorts)
 
-      s"docker create --name $containerName $portForwarding $memoryLimit $imageName" !
+      s"docker create ${setContainerName(containerName)} $portForwarding $memoryLimit $imageName" !
 
       containerName
     },

@@ -11,6 +11,8 @@ trait DockerContainerKeys {
 
   lazy val dockerContainerMemoryLimit = settingKey[Option[String]]("memory limit for created Docker container. e.g., Option('192M')")
 
-  lazy val dockerContainerPortForwarding = settingKey[Map[Int, Option[Int]]]("Docker container:host port mappings")
-  lazy val dockerContainerAutoForwardAllPorts = settingKey[Boolean]("Auto-map all exposed ports")
+  lazy val dockerContainerPortPublishing = settingKey[Map[Int, Option[Int]]]("Docker container:host port mappings")
+  lazy val dockerContainerPublishAllPorts = settingKey[Boolean]("Auto-map all exposed ports")
+
+  lazy val AutoAssign = None
 }
