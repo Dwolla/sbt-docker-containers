@@ -5,6 +5,7 @@ import sbt.Keys._
 import sbt._
 
 import scala.language.postfixOps
+import util.Try
 
 object DockerContainerPlugin extends AutoPlugin {
 
@@ -20,7 +21,8 @@ object DockerContainerPlugin extends AutoPlugin {
     (name in createLocalDockerContainer) := normalizedName.value,
     dockerContainerMemoryLimit := None,
     dockerContainerPublishAllPorts := false,
-    dockerContainerPortPublishing := Map.empty[Int, Option[Int]]
+    dockerContainerPortPublishing := Map.empty[Int, Option[Int]],
+    dockerContainerLinks := Map.empty[String, String]
   )
 
   lazy val tasks = Seq(
@@ -30,28 +32,45 @@ object DockerContainerPlugin extends AutoPlugin {
       dockerContainerPublishAllPorts,
       dockerTarget in Docker,
       name in createLocalDockerContainer,
+      dockerContainerLinks,
       publishLocal in Docker
       ) map { (
                 optionalMemoryLimit,
                 portForwardMappings,
-                autoForwardPorts,
+                autoPublishPorts,
                 imageName,
-                containerName, _) ⇒
+                containerName, linksMap, _) ⇒
 
       val memoryLimit = optionalMemoryLimit.map(memoryLimitToDockerCommand).getOrElse("")
-      val portForwarding = portMappings(portForwardMappings, autoForwardPorts)
+      val portForwarding = portMappings(portForwardMappings, autoPublishPorts)
+      val linksCommandLine = links(linksMap)
 
-      s"docker create ${setContainerName(containerName)} $portForwarding $memoryLimit $imageName" !
+      val commandLine = List(
+        "docker create",
+        setContainerName(containerName),
+        memoryLimit,
+        portForwarding,
+        linksCommandLine,
+        imageName
+      ).mkString(" ")
+
+      commandLine !
 
       containerName
     },
     runLocalDockerContainer <<= createLocalDockerContainer map { containerName ⇒
       s"docker start $containerName" !
     },
-    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, imageName, _) ⇒
-      s"docker stop $containerName" !;
-      s"docker rm $containerName" !;
-      s"docker rmi $imageName" !
+    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, fullImageName, _) ⇒
+      def allImageNames: List[String] = fullImageName +: Try {
+        fullImageName.split(":")(0) + ":latest"
+      }.toOption.toList
+
+      s"docker stop $containerName" !
+
+      s"docker rm $containerName" !
+
+      allImageNames.foreach(imageName ⇒ s"docker rmi $imageName" !)
     })
 
   lazy val baseDockerContainerSettings = defaultValues ++ tasks
