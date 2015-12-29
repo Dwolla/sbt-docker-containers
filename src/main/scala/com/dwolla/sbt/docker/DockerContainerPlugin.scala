@@ -5,6 +5,7 @@ import sbt.Keys._
 import sbt._
 
 import scala.language.postfixOps
+import util.Try
 
 object DockerContainerPlugin extends AutoPlugin {
 
@@ -60,10 +61,16 @@ object DockerContainerPlugin extends AutoPlugin {
     runLocalDockerContainer <<= createLocalDockerContainer map { containerName ⇒
       s"docker start $containerName" !
     },
-    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, imageName, _) ⇒
-      s"docker stop $containerName" !;
-      s"docker rm $containerName" !;
-      s"docker rmi $imageName" !
+    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, fullImageName, _) ⇒
+      def allImageNames: List[String] = fullImageName +: Try {
+        fullImageName.split(":")(0) + ":latest"
+      }.toOption.toList
+
+      s"docker stop $containerName" !
+
+      s"docker rm $containerName" !
+
+      allImageNames.foreach(imageName ⇒ s"docker rmi $imageName" !)
     })
 
   lazy val baseDockerContainerSettings = defaultValues ++ tasks
