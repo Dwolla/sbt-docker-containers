@@ -14,5 +14,7 @@ trait DockerContainerKeys {
   lazy val dockerContainerPortPublishing = settingKey[Map[Int, Option[Int]]]("Docker container:host port mappings")
   lazy val dockerContainerPublishAllPorts = settingKey[Boolean]("Auto-map all exposed ports")
 
+  lazy val dockerContainerLinks = settingKey[Map[String, String]]("Linked Docker containers")
+
   lazy val AutoAssign = None
 }

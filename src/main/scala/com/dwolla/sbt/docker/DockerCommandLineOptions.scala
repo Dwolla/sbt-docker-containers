@@ -3,6 +3,7 @@ package com.dwolla.sbt.docker
 object DockerCommandLineOptions {
   val publishPort = "--publish"
   val containerNameDockerOption = "--name"
+  val link = "--link"
 
   def publishAllExposedPorts(enabled: Boolean): String = if (enabled) "--publish-all" else ""
 
@@ -14,8 +15,12 @@ object DockerCommandLineOptions {
       s"$publishPort $container$host"
   }
 
-  def portMappings(mappings: Map[Int, Option[Int]], autoForwardPorts: Boolean) =
-    (mappings.map(portMappingToDockerCommand).toList :+ publishAllExposedPorts(autoForwardPorts)).mkString(" ")
+  def portMappings(mappings: Map[Int, Option[Int]], autoPublishPorts: Boolean) =
+    (mappings.map(portMappingToDockerCommand).toList :+ publishAllExposedPorts(autoPublishPorts)).mkString(" ")
+
+  def links(mappings: Map[String, String]) = mappings.map {
+    case (containerName, alias) ⇒ s"$link $containerName:$alias"
+  }.mkString(" ")
 
   def setContainerName(containerName: String): String = s"$containerNameDockerOption $containerName"
 }

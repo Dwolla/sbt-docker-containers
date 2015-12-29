@@ -49,6 +49,19 @@ In the given example, the container port `8080` will be published on host port `
 
 The container name will be the normalized project name by default, but this can be overridden by setting `name in createLocalDockerContainer`.
 
+### Linked Containers
+
+    dockerContainerLinks := Map("container-name" → "container-name")
+
+Creates links from the new container to the specified container. The key side of the mapping is the actual container name, while the value side is the alias inside the new container. Typically, the alias matches the container name, but it can be different if needed.
+
+Links can also be added using the syntax below:
+
+    dockerContainerLinks += "container-name" → "container-name"
+    dockerContainerLinks ++= Map("container-name" → "container-name", "container-two" → "container-two")
+
+Both of these examples will append new linked containers to any previously established in the build definition.
+
 ## `docker:createLocal` Task
 
 Uses the Docker image created by `docker:publishLocal` and creates a container configured as defined.
