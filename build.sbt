@@ -13,6 +13,8 @@ lazy val buildVersion = {
   }
 }
 
+lazy val specs2Version = "3.6.6"
+
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
   name := "docker-containers",
@@ -20,7 +22,12 @@ lazy val buildSettings = Seq(
   version := buildVersion,
   scalaVersion := "2.10.6",
   sbtPlugin := true,
-  resolvers += "artifactory" at s"$artifactoryBase/repo"
+  resolvers += "artifactory" at s"$artifactoryBase/repo",
+  libraryDependencies ++= Seq(
+    "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
+    "org.specs2"     %% "specs2-mock"     % specs2Version  % "test",
+    "org.mockito"    %  "mockito-all"     % "1.9.5"        % "test"
+  )
 )
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")

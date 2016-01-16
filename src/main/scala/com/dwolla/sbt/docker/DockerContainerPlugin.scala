@@ -1,6 +1,7 @@
 package com.dwolla.sbt.docker
 
 import com.typesafe.sbt.packager.docker.DockerPlugin
+import model.DockerCreateArguments
 import sbt.Keys._
 import sbt._
 
@@ -25,8 +26,12 @@ object DockerContainerPlugin extends AutoPlugin {
     dockerContainerLinks := Map.empty[String, String]
   )
 
+  lazy val createLocalProcessBuilder = TaskKey[DockerCreateArguments]("createLocalProcessBuilder", "task key used internally for testing the createLocal task") in Docker
+  lazy val runLocalProcessBuilder = TaskKey[ProcessBuilder]("runLocalProcessBuilder", "task key used internally for testing the createLocal task") in Docker
+  lazy val cleanProcessBuilders = TaskKey[List[ProcessBuilder]]("cleanProcessBuilder", "task key used internally for testing the createLocal task") in Docker
+  
   lazy val tasks = Seq(
-    createLocalDockerContainer <<= (
+    createLocalProcessBuilder <<= (
       dockerContainerMemoryLimit,
       dockerContainerPortPublishing,
       dockerContainerPublishAllPorts,
@@ -36,44 +41,42 @@ object DockerContainerPlugin extends AutoPlugin {
       publishLocal in Docker
       ) map { (
                 optionalMemoryLimit,
-                portForwardMappings,
+                portPublishingMappings,
                 autoPublishPorts,
                 imageName,
                 containerName, linksMap, _) ⇒
-
-      val memoryLimit = optionalMemoryLimit.map(memoryLimitToDockerCommand).getOrElse("")
-      val portForwarding = portMappings(portForwardMappings, autoPublishPorts)
-      val linksCommandLine = links(linksMap)
-
-      val commandLine = List(
-        "docker create",
-        setContainerName(containerName),
-        memoryLimit,
-        portForwarding,
-        linksCommandLine,
-        imageName
-      ).mkString(" ")
-
-      commandLine !
-
-      containerName
+      DockerCreateArguments(containerName, imageName, optionalMemoryLimit, portPublishingMappings, autoPublishPorts, linksMap)
     },
-    runLocalDockerContainer <<= createLocalDockerContainer map { containerName ⇒
-      s"docker start $containerName" !
+    createLocalDockerContainer <<= createLocalProcessBuilder map { (dockerCreateArguments) ⇒
+      dockerCreateArguments.toDockerProcessReifiedCommandLineArguments.toDockerProcessBuilder !!
+
+      dockerCreateArguments.containerName
     },
-    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, fullImageName, _) ⇒
-      def allImageNames: List[String] = fullImageName +: Try {
+
+    runLocalProcessBuilder <<= createLocalDockerContainer map { containerName ⇒
+      dockerProcess("start", containerName)
+    },
+    runLocalDockerContainer <<= runLocalProcessBuilder map { processBuilder ⇒
+      processBuilder !!
+    },
+
+    cleanProcessBuilders <<= (name in createLocalDockerContainer, dockerTarget in Docker) map { (containerName, fullImageName) ⇒
+      val allImageNames: List[String] = fullImageName +: Try {
         fullImageName.split(":")(0) + ":latest"
       }.toOption.toList
 
-      s"docker stop $containerName" !
-
-      s"docker rm $containerName" !
-
-      allImageNames.foreach(imageName ⇒ s"docker rmi $imageName" !)
+      List(
+        dockerProcess("stop", containerName),
+        dockerProcess("rm", "-v", containerName)
+      ) ++ allImageNames.map(dockerProcess("rmi", _))
+    },
+    clean in Docker <<= (cleanProcessBuilders, clean) map { (processBuilders, _) ⇒
+      processBuilders.foreach { _ ! }
     })
 
   lazy val baseDockerContainerSettings = defaultValues ++ tasks
 
   override lazy val projectSettings = baseDockerContainerSettings
+
+  def dockerProcess(args: String*): ProcessBuilder = Process(dockerCommand, args)
 }
