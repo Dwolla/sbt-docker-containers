@@ -5,7 +5,7 @@ import sbt.Keys._
 lazy val artifactoryBase = "http://artifactory.dwolla.net:8081/artifactory"
 
 lazy val buildVersion = {
-  val mainVersion = "1.0"
+  val mainVersion = "1.1"
   val minorVersion = Option(getenv("BUILD_NUMBER"))
   minorVersion match {
     case Some(v: String) ⇒ mainVersion + "." + v
