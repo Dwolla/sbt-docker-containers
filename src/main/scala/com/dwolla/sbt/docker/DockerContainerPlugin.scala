@@ -31,13 +31,14 @@ object DockerContainerPlugin extends AutoPlugin {
 
   lazy val tasks = Seq(
     dockerCreateArguments <<= (
+      name in createLocalDockerContainer,
+      dockerTarget in Docker,
       dockerContainerMemoryLimit,
       dockerContainerPortPublishing,
       dockerContainerPublishAllPorts,
-      dockerTarget in Docker,
-      name in createLocalDockerContainer,
-      dockerContainerLinks
-      ) map toDockerCreateArguments,
+      dockerContainerLinks,
+      dockerContainerAdditionalEnvironmentVariables
+      ) map DockerCreateArguments.apply,
     createLocalDockerContainer <<= (dockerCreateArguments, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
 
     dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
@@ -59,14 +60,6 @@ object DockerContainerPlugin extends AutoPlugin {
 
     dockerCreateArguments.containerName
   }
-
-  def toDockerCreateArguments(optionalMemoryLimit: Option[String],
-                              portPublishingMappings: Map[Int, Option[Int]],
-                              autoPublishPorts: Boolean,
-                              imageName: String,
-                              containerName: String,
-                              linksMap: Map[String, String]) =
-    DockerCreateArguments(containerName, imageName, optionalMemoryLimit, portPublishingMappings, autoPublishPorts, linksMap)
 
   def toDockerCleanProcesses(containerName: String, fullImageName: String) = {
     val allImageNames: List[String] = fullImageName +: Try {

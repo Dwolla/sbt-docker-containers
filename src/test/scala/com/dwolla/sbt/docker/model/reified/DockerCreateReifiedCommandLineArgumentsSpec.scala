@@ -15,7 +15,8 @@ class DockerCreateReifiedCommandLineArgumentsSpec extends Specification {
         memoryLimit = Some("--memory 10M"),
         publishedPorts = Set("--publish 77:1983"),
         autoPublishAllPorts = Some("--publish-all"),
-        linkedContainers = Set("--link a:b")
+        linkedContainers = Set("--link a:b"),
+        environment = Set("--env provided")
       )
 
       val output = input.toSeq
@@ -27,6 +28,7 @@ class DockerCreateReifiedCommandLineArgumentsSpec extends Specification {
       output must contain("--publish 77:1983")
       output must contain("--publish-all")
       output must contain("--link a:b")
+      output must contain("--env provided")
     }
   }
 }

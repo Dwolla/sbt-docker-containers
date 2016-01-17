@@ -1,6 +1,6 @@
 package com.dwolla.sbt.docker
 
-import model.{DockerStopArguments, DockerRemoveContainerArguments, DockerRemoveImageArguments}
+import model.{DockerCreateArguments, DockerStopArguments, DockerRemoveContainerArguments, DockerRemoveImageArguments}
 import org.specs2.mutable.Specification
 
 class DockerContainerPluginSpec extends Specification {
@@ -22,5 +22,4 @@ class DockerContainerPluginSpec extends Specification {
       output must_== expected
     }
   }
-
 }

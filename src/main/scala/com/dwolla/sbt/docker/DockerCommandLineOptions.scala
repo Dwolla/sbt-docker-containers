@@ -13,4 +13,5 @@ object DockerCommandLineOptions {
   val publishAllPorts = "--publish-all"
   val memory = "--memory"
   val volumes = "--volumes"
+  val environment = "--env"
 }

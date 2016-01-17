@@ -7,7 +7,9 @@ case class DockerCreateReifiedCommandLineArguments(containerName: String,
                                                    memoryLimit: Option[String],
                                                    publishedPorts: Set[String],
                                                    autoPublishAllPorts: Option[String],
-                                                   linkedContainers: Set[String]) extends DockerProcessBuilder {
+                                                   linkedContainers: Set[String],
+                                                   environment: Set[String]
+                                                  ) extends DockerProcessBuilder {
   override def toSeq: Seq[String] = Seq(
     "create",
     containerName,
@@ -15,6 +17,7 @@ case class DockerCreateReifiedCommandLineArguments(containerName: String,
     autoPublishAllPorts.getOrElse("")
   ) ++
     publishedPorts ++
-    linkedContainers :+
+    linkedContainers ++
+    environment :+
     imageName
 }
