@@ -5,13 +5,16 @@ import sbt.Keys._
 lazy val artifactoryBase = "http://artifactory.dwolla.net:8081/artifactory"
 
 lazy val buildVersion = {
-  val mainVersion = "1.0"
+  val mainVersion = "1.1"
   val minorVersion = Option(getenv("BUILD_NUMBER"))
+  val verificationSuffix = Option(getenv("JOB_NAME")).filterNot(_.toLowerCase.endsWith("_publish")).map(name ⇒ s"-$name").getOrElse("")
   minorVersion match {
-    case Some(v: String) ⇒ mainVersion + "." + v
+    case Some(v: String) ⇒ s"$mainVersion.$v$verificationSuffix"
     case None ⇒ mainVersion + "-SNAPSHOT"
   }
 }
+
+lazy val specs2Version = "3.6.6"
 
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
@@ -20,7 +23,12 @@ lazy val buildSettings = Seq(
   version := buildVersion,
   scalaVersion := "2.10.6",
   sbtPlugin := true,
-  resolvers += "artifactory" at s"$artifactoryBase/repo"
+  resolvers += "artifactory" at s"$artifactoryBase/repo",
+  libraryDependencies ++= Seq(
+    "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
+    "org.specs2"     %% "specs2-mock"     % specs2Version  % "test",
+    "org.mockito"    %  "mockito-all"     % "1.9.5"        % "test"
+  )
 )
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")

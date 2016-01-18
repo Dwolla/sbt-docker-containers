@@ -1,0 +1,7 @@
+package com.dwolla.sbt.docker.model
+
+import reified.DockerRemoveImageReifiedCommandLineArguments
+
+case class DockerRemoveImageArguments(imageNames: String*) extends DockerProcessReifiedCommandLineArgumentBuilder[DockerRemoveImageReifiedCommandLineArguments] {
+  override def toDockerProcessReifiedCommandLineArguments = DockerRemoveImageReifiedCommandLineArguments(imageNames.toSet)
+}

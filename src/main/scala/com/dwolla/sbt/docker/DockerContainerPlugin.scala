@@ -1,6 +1,7 @@
 package com.dwolla.sbt.docker
 
 import com.typesafe.sbt.packager.docker.DockerPlugin
+import model.{DockerStartArguments, DockerCreateArguments, DockerProcessBuilder, DockerProcessReifiedCommandLineArgumentBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStopArguments}
 import sbt.Keys._
 import sbt._
 
@@ -11,7 +12,6 @@ object DockerContainerPlugin extends AutoPlugin {
 
   object autoImport extends DockerContainerKeys
 
-  import DockerCommandLineOptions._
   import DockerPlugin.autoImport._
   import autoImport._
 
@@ -25,53 +25,53 @@ object DockerContainerPlugin extends AutoPlugin {
     dockerContainerLinks := Map.empty[String, String]
   )
 
+  lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker
+  lazy val dockerStartArguments = TaskKey[DockerStartArguments]("dockerStartArguments", "task key used internally for testing the startLocal task") in Docker
+  lazy val dockerCleanArguments = TaskKey[Seq[DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]]]("dockerCleanArguments", "task key used internally for testing the docker:clean task") in Docker
+
   lazy val tasks = Seq(
-    createLocalDockerContainer <<= (
+    dockerCreateArguments <<= (
+      name in createLocalDockerContainer,
+      dockerTarget in Docker,
       dockerContainerMemoryLimit,
       dockerContainerPortPublishing,
       dockerContainerPublishAllPorts,
-      dockerTarget in Docker,
-      name in createLocalDockerContainer,
       dockerContainerLinks,
-      publishLocal in Docker
-      ) map { (
-                optionalMemoryLimit,
-                portForwardMappings,
-                autoPublishPorts,
-                imageName,
-                containerName, linksMap, _) ⇒
+      dockerContainerAdditionalEnvironmentVariables
+      ) map DockerCreateArguments.apply,
+    createLocalDockerContainer <<= (dockerCreateArguments, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
 
-      val memoryLimit = optionalMemoryLimit.map(memoryLimitToDockerCommand).getOrElse("")
-      val portForwarding = portMappings(portForwardMappings, autoPublishPorts)
-      val linksCommandLine = links(linksMap)
+    dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
+    startLocalDockerContainer <<= dockerStartArguments map runDockerProcess,
+    runLocalDockerContainer <<= startLocalDockerContainer,
 
-      val commandLine = List(
-        "docker create",
-        setContainerName(containerName),
-        memoryLimit,
-        portForwarding,
-        linksCommandLine,
-        imageName
-      ).mkString(" ")
+    dockerCleanArguments <<= (name in createLocalDockerContainer, dockerTarget in Docker) map toDockerCleanProcesses,
+    clean in Docker <<= (dockerCleanArguments, clean) map runDockerProcesses
+  )
 
-      commandLine !
+  def runDockerProcess(processBuilder: DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]): Unit =
+    processBuilder.toDockerProcessReifiedCommandLineArguments.toDockerProcessBuilder !!
 
-      containerName
-    },
-    runLocalDockerContainer <<= createLocalDockerContainer map { containerName ⇒
-      s"docker start $containerName" !
-    },
-    clean in Docker <<= (name in createLocalDockerContainer, dockerTarget in Docker, clean) map { (containerName, fullImageName, _) ⇒
-      def allImageNames: List[String] = fullImageName +: Try {
-        fullImageName.split(":")(0) + ":latest"
-      }.toOption.toList
+  def runDockerProcesses(processBuilders: Seq[DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]], unit: Unit): Unit =
+    processBuilders.foreach(runDockerProcess)
 
-      s"docker stop $containerName" !
+  def runDockerCreateAndReturnContainerName(dockerCreateArguments: DockerCreateArguments, unit: Unit): String = {
+    dockerCreateArguments.toDockerProcessReifiedCommandLineArguments.toDockerProcessBuilder !!
 
-      s"docker rm $containerName" !
+    dockerCreateArguments.containerName
+  }
 
-      allImageNames.foreach(imageName ⇒ s"docker rmi $imageName" !)
-    })
+  def toDockerCleanProcesses(containerName: String, fullImageName: String) = {
+    val allImageNames: List[String] = fullImageName +: Try {
+      fullImageName.split(":")(0) + ":latest"
+    }.toOption.toList
+
+    Seq(
+      DockerStopArguments(containerName),
+      DockerRemoveContainerArguments(containerName, volumes = true),
+      DockerRemoveImageArguments(allImageNames: _*)
+    )
+  }
 
   lazy val baseDockerContainerSettings = defaultValues ++ tasks
 

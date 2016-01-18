@@ -1,0 +1,7 @@
+package com.dwolla.sbt.docker.model
+
+import reified.DockerStartReifiedCommandLineArguments
+
+case class DockerStartArguments(containerName: String) extends DockerProcessReifiedCommandLineArgumentBuilder[DockerStartReifiedCommandLineArguments]{
+  override def toDockerProcessReifiedCommandLineArguments = DockerStartReifiedCommandLineArguments(containerName)
+}
