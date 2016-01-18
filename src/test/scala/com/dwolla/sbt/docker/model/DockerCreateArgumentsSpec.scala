@@ -15,7 +15,7 @@ class DockerCreateArgumentsSpec extends Specification {
         containerName = "container",
         imageName = "image",
         memoryLimit = Some("10M"),
-        publishedPorts = Map(77 → None, 1983 → Option(42)),
+        publishedPorts = Map(77 → DockerContainerPlugin.autoImport.AutoAssign, 1983 → Option(42)),
         autoPublishAllPorts = true,
         linkedContainers = Map("a" → "b"),
         environment = Map("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru)
