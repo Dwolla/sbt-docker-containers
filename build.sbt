@@ -7,8 +7,9 @@ lazy val artifactoryBase = "http://artifactory.dwolla.net:8081/artifactory"
 lazy val buildVersion = {
   val mainVersion = "1.1"
   val minorVersion = Option(getenv("BUILD_NUMBER"))
+  val verificationSuffix = Option(getenv("JOB_NAME")).filterNot(_.toLowerCase.endsWith("_publish")).map(name ⇒ s"-$name").getOrElse("")
   minorVersion match {
-    case Some(v: String) ⇒ mainVersion + "." + v
+    case Some(v: String) ⇒ s"$mainVersion.$v$verificationSuffix"
     case None ⇒ mainVersion + "-SNAPSHOT"
   }
 }
