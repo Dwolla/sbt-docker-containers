@@ -21,11 +21,11 @@ This will also enable `DockerPlugin` from [sbt-native-packager](http://www.scala
 
 ## Available Settings
 
-### `dockerContainerMemoryLimit`
+### Container Memory Limitation
 
     dockerContainerMemoryLimit := Option("192M")
 
-Sets the memory limit for the container. Maps to the `--memory` Docker command line option. This value is typically set to some value marginally higher than the JVM’s max heap size, to account for the JVM’s overhead.
+Sets the memory limit for the container. Maps to the `--memory` Docker command line option.
 
 ### Port Publishing
 
@@ -62,13 +62,21 @@ Links can also be added using the syntax below:
 
 Both of these examples will append new linked containers to any previously established in the build definition.
 
+### Additional Environment Variables
+
+    dockerContainerAdditionalEnvironmentVariables := Map("NAME" → Option("value"), "FROM_HOST" → Passthru)
+
+Operators can augment or override the environment specified by the container’s image by giving mappings from the name of the environment variable to either the value or `Passthru`.
+
+If `Passthru` is specified and the variable name is present in the host’s environment, the value in the container will be set to match that of the host. If the variable is not set in the host’s environment, the variable will be unset in the container (even if it is set by the image). Docker’s behavior is [documented here](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables-e-env-env-file), but supplying an environment file is not supported by this plugin at this time.
+
 ## `docker:createLocal` Task
 
 Uses the Docker image created by `docker:publishLocal` and creates a container configured as defined.
 
-## `docker:runLocal ` Task
+## `docker:startLocal ` Task
 
-Runs the container created by `docker:createLocal`.
+Runs the container created by `docker:createLocal`. This action is also available using `docker:runLocal`, but this is deprecated and will be removed in a future version of the plugin.
 
 ## `docker:clean` Task
 
