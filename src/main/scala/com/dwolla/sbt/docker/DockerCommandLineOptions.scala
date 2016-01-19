@@ -9,7 +9,7 @@ object DockerCommandLineOptions {
   val removeImage = "rmi"
 
   val publishPort = "--publish"
-  val containerNameDockerOption = "--name"
+  val containerName = "--name"
   val link = "--link"
   val publishAllPorts = "--publish-all"
   val memory = "--memory"

@@ -40,7 +40,7 @@ object DockerCreateArguments {
     DockerCreateArguments(
       ContainerName(containerName),
       imageName,
-      memoryLimit.map(x ⇒ MemoryLimit(x)),
+      memoryLimit.map(MemoryLimit),
       PublishedPorts(portPublishing.toSeq: _*),
       publishAllPorts,
       LinkedContainers(links.toSeq: _*),
@@ -62,7 +62,7 @@ object DockerCreateArguments {
   }
 
   case class ContainerName(name: String) extends Argument {
-    override def reified: Seq[String] = Seq("--name", name)
+    override def reified: Seq[String] = Seq(containerName, name)
   }
 
   case class MemoryLimit(limit: String) extends Argument {
