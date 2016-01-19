@@ -29,8 +29,10 @@ object DockerContainerPlugin extends AutoPlugin {
   lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker
   lazy val dockerStartArguments = TaskKey[DockerStartArguments]("dockerStartArguments", "task key used internally for testing the startLocal task") in Docker
   lazy val dockerCleanArguments = TaskKey[Seq[DockerProcessBuilder]]("dockerCleanArguments", "task key used internally for testing the docker:clean task") in Docker
+  lazy val logger = TaskKey[Logger]("logger", "logger from streams") in Docker
 
   lazy val tasks = Seq(
+    logger <<= streams map { (streams) ⇒ streams.log },
     dockerCreateArguments <<= (
       name in createLocalDockerContainer,
       dockerTarget in Docker,
@@ -40,27 +42,28 @@ object DockerContainerPlugin extends AutoPlugin {
       dockerContainerLinks,
       dockerContainerAdditionalEnvironmentVariables
       ) map DockerCreateArguments.fromBasicSbtTypes,
-    createLocalDockerContainer <<= (dockerCreateArguments, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
+    createLocalDockerContainer <<= (dockerCreateArguments, logger, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
 
     dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
-    startLocalDockerContainer <<= dockerStartArguments map runDockerProcess,
+    startLocalDockerContainer <<= (dockerStartArguments, streams) map { (x, y) ⇒ runDockerProcess(x, y.log) },
     runLocalDockerContainer <<= startLocalDockerContainer,
 
     dockerCleanArguments <<= (name in createLocalDockerContainer, dockerTarget in Docker) map toDockerCleanProcesses,
-    clean in Docker <<= (dockerCleanArguments, clean) map runDockerProcessesIgnoringErrors
+    clean in Docker <<= (dockerCleanArguments, logger, clean) map runDockerProcessesIgnoringErrors
   )
 
-  def runDockerProcess(processBuilder: DockerProcessBuilder): Unit = {
+  def runDockerProcess(processBuilder: DockerProcessBuilder, logger: Logger): Unit = {
+    logger.info((DockerCommandLineOptions.dockerCommand +: processBuilder.argumentSequence).mkString(" "))
     processBuilder.toDockerProcessBuilder !!
   }
 
-  def runDockerProcessesIgnoringErrors(processBuilders: Seq[DockerProcessBuilder], unit: Unit): Unit =
+  def runDockerProcessesIgnoringErrors(processBuilders: Seq[DockerProcessBuilder], logger: Logger, unit: Unit): Unit =
     processBuilders.foreach(proc ⇒ Try {
-      runDockerProcess(proc)
+      runDockerProcess(proc, logger)
     })
 
-  def runDockerCreateAndReturnContainerName(dockerCreateArguments: DockerCreateArguments, unit: Unit): String = {
-    runDockerProcess(dockerCreateArguments)
+  def runDockerCreateAndReturnContainerName(dockerCreateArguments: DockerCreateArguments, logger: Logger, unit: Unit): String = {
+    runDockerProcess(dockerCreateArguments, logger)
 
     dockerCreateArguments.containerName.name
   }

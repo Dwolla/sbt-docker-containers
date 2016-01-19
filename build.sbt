@@ -24,8 +24,7 @@ lazy val buildSettings = Seq(
   resolvers += "artifactory" at s"$artifactoryBase/repo",
   libraryDependencies ++= Seq(
     "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
-    "org.specs2"     %% "specs2-mock"     % specs2Version  % "test",
-    "org.mockito"    %  "mockito-all"     % "1.9.5"        % "test"
+    "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
   )
 )
 
