@@ -2,7 +2,6 @@ package com.dwolla.sbt.docker.model
 
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import reified.DockerStartReifiedCommandLineArguments
 
 class DockerStartArgumentsSpec extends Specification {
 
@@ -10,11 +9,10 @@ class DockerStartArgumentsSpec extends Specification {
 
   "DockerRunArguments" should {
 
-    "reify its arguments" in new Setup {
+    "build ordered command line arguments using container name" in new Setup {
       val input = DockerStartArguments("name")
-      val expected = DockerStartReifiedCommandLineArguments("name")
-
-      val output = input.toDockerProcessReifiedCommandLineArguments
+      val expected = Seq("start", "name")
+      val output = input.argumentSequence
 
       output must_== expected
     }

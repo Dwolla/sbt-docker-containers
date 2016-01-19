@@ -4,6 +4,7 @@ object DockerCommandLineOptions {
   val dockerCommand = "docker"
   val dockerStart = "start"
   val dockerStop = "stop"
+  val dockerCreate = "create"
   val removeContainer = "rm"
   val removeImage = "rmi"
 

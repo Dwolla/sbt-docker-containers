@@ -4,7 +4,7 @@ import com.dwolla.sbt.docker.DockerCommandLineOptions._
 import sbt.{Process, ProcessBuilder}
 
 trait DockerProcessBuilder {
-  def toDockerProcessBuilder: ProcessBuilder = Process(dockerCommand, toSeq)
+  def toDockerProcessBuilder: ProcessBuilder = Process(dockerCommand, argumentSequence)
 
-  def toSeq: Seq[String]
+  def argumentSequence: Seq[String]
 }

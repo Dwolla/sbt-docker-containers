@@ -1,7 +1,7 @@
 package com.dwolla.sbt.docker
 
 import com.typesafe.sbt.packager.docker.DockerPlugin
-import model.{DockerStartArguments, DockerCreateArguments, DockerProcessBuilder, DockerProcessReifiedCommandLineArgumentBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStopArguments}
+import model.{DockerCreateArguments, DockerProcessBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStartArguments, DockerStopArguments}
 import sbt.Keys._
 import sbt._
 
@@ -28,7 +28,7 @@ object DockerContainerPlugin extends AutoPlugin {
 
   lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker
   lazy val dockerStartArguments = TaskKey[DockerStartArguments]("dockerStartArguments", "task key used internally for testing the startLocal task") in Docker
-  lazy val dockerCleanArguments = TaskKey[Seq[DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]]]("dockerCleanArguments", "task key used internally for testing the docker:clean task") in Docker
+  lazy val dockerCleanArguments = TaskKey[Seq[DockerProcessBuilder]]("dockerCleanArguments", "task key used internally for testing the docker:clean task") in Docker
 
   lazy val tasks = Seq(
     dockerCreateArguments <<= (
@@ -39,7 +39,7 @@ object DockerContainerPlugin extends AutoPlugin {
       dockerContainerPublishAllPorts,
       dockerContainerLinks,
       dockerContainerAdditionalEnvironmentVariables
-      ) map DockerCreateArguments.apply,
+      ) map DockerCreateArguments.fromBasicSbtTypes,
     createLocalDockerContainer <<= (dockerCreateArguments, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
 
     dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
@@ -47,19 +47,22 @@ object DockerContainerPlugin extends AutoPlugin {
     runLocalDockerContainer <<= startLocalDockerContainer,
 
     dockerCleanArguments <<= (name in createLocalDockerContainer, dockerTarget in Docker) map toDockerCleanProcesses,
-    clean in Docker <<= (dockerCleanArguments, clean) map runDockerProcesses
+    clean in Docker <<= (dockerCleanArguments, clean) map runDockerProcessesIgnoringErrors
   )
 
-  def runDockerProcess(processBuilder: DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]): Unit =
-    processBuilder.toDockerProcessReifiedCommandLineArguments.toDockerProcessBuilder !!
+  def runDockerProcess(processBuilder: DockerProcessBuilder): Unit = {
+    processBuilder.toDockerProcessBuilder !!
+  }
 
-  def runDockerProcesses(processBuilders: Seq[DockerProcessReifiedCommandLineArgumentBuilder[_ <: DockerProcessBuilder]], unit: Unit): Unit =
-    processBuilders.foreach(runDockerProcess)
+  def runDockerProcessesIgnoringErrors(processBuilders: Seq[DockerProcessBuilder], unit: Unit): Unit =
+    processBuilders.foreach(proc ⇒ Try {
+      runDockerProcess(proc)
+    })
 
   def runDockerCreateAndReturnContainerName(dockerCreateArguments: DockerCreateArguments, unit: Unit): String = {
-    dockerCreateArguments.toDockerProcessReifiedCommandLineArguments.toDockerProcessBuilder !!
+    runDockerProcess(dockerCreateArguments)
 
-    dockerCreateArguments.containerName
+    dockerCreateArguments.containerName.name
   }
 
   def toDockerCleanProcesses(containerName: String, fullImageName: String) = {
