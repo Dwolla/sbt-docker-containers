@@ -45,7 +45,7 @@ object DockerContainerPlugin extends AutoPlugin {
     createLocalDockerContainer <<= (dockerCreateArguments, logger, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
 
     dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
-    startLocalDockerContainer <<= (dockerStartArguments, streams) map { (x, y) ⇒ runDockerProcess(x, y.log) },
+    startLocalDockerContainer <<= (dockerStartArguments, logger) map runDockerProcess,
     runLocalDockerContainer <<= startLocalDockerContainer,
 
     dockerCleanArguments <<= (name in createLocalDockerContainer, dockerTarget in Docker) map toDockerCleanProcesses,

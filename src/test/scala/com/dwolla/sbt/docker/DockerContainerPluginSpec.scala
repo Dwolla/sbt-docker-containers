@@ -1,5 +1,7 @@
 package com.dwolla.sbt.docker
 
+import com.dwolla.sbt.docker.DockerContainerPlugin.{baseDockerContainerSettings, defaultValues, projectSettings, requires, tasks}
+import com.typesafe.sbt.packager.docker.DockerPlugin
 import model.DockerCreateArguments.ContainerName
 import model.{DockerCreateArguments, DockerProcessBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStopArguments}
 import org.specs2.mock.Mockito
@@ -83,6 +85,22 @@ class DockerContainerPluginSpec extends Specification with Mockito {
 
       there was one(logger).info("docker one two")
       there was one(sbtProcessBuilder).!!
+    }
+  }
+
+  "projectSettings" should {
+    "be exposed as a project-specific key" in {
+      baseDockerContainerSettings must_== defaultValues ++ tasks
+    }
+
+    "project-specific key must be assigned to sbt projectSettings" in {
+      projectSettings must_== baseDockerContainerSettings
+    }
+  }
+
+  "plugin dependencies" should {
+    "include DockerPlugin" in {
+      requires must_== DockerPlugin
     }
   }
 }
