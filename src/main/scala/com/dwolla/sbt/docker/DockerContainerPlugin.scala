@@ -22,7 +22,8 @@ object DockerContainerPlugin extends AutoPlugin {
     dockerContainerMemoryLimit := None,
     dockerContainerPublishAllPorts := false,
     dockerContainerPortPublishing := Map.empty[Int, Option[Int]],
-    dockerContainerLinks := Map.empty[String, String]
+    dockerContainerLinks := Map.empty[String, String],
+    dockerContainerAdditionalEnvironmentVariables := Map.empty[String, Option[String]]
   )
 
   lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker

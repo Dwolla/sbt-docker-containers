@@ -1,7 +1,5 @@
 import java.lang.System._
 
-import sbt.Keys._
-
 lazy val artifactoryBase = "http://artifactory.dwolla.net:8081/artifactory"
 
 lazy val buildVersion = {
@@ -46,9 +44,17 @@ lazy val publishSettings = Seq(
   }
 )
 
-lazy val pipeline = TaskKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
-pipeline <<= test in Test
+lazy val pipeline = InputKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
+pipeline := scripted.dependsOn(test in Test).evaluated
+
+scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+  Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+}
+
+// uncomment to see sbt output for each scripted test run
+//scriptedBufferLog := false
 
 val dockerContainersPlugin = (project in file("."))
   .settings(buildSettings: _*)
   .settings(publishSettings: _*)
+  .settings(ScriptedPlugin.scriptedSettings: _*)
