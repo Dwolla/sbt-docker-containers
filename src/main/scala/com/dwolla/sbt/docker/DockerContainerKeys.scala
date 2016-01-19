@@ -1,9 +1,8 @@
 package com.dwolla.sbt.docker
 
 import com.typesafe.sbt.packager.docker.DockerPlugin
-import sbt.TaskKey
-import sbt.settingKey
 import DockerPlugin.autoImport._
+import sbt.{TaskKey, settingKey}
 
 trait DockerContainerKeys {
   lazy val createLocalDockerContainer = TaskKey[String]("createLocal", "Use the newly-built image and create a local container with the right parameters") in Docker

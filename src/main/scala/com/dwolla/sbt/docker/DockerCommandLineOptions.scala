@@ -4,11 +4,12 @@ object DockerCommandLineOptions {
   val dockerCommand = "docker"
   val dockerStart = "start"
   val dockerStop = "stop"
+  val dockerCreate = "create"
   val removeContainer = "rm"
   val removeImage = "rmi"
 
   val publishPort = "--publish"
-  val containerNameDockerOption = "--name"
+  val containerName = "--name"
   val link = "--link"
   val publishAllPorts = "--publish-all"
   val memory = "--memory"

@@ -1,25 +1,25 @@
 package com.dwolla.sbt.docker.model
 
+import com.dwolla.sbt.docker.DockerCommandLineOptions._
 import org.specs2.mutable.Specification
-import reified.DockerRemoveContainerReifiedCommandLineArguments
 
 class DockerRemoveContainerArgumentsSpec extends Specification {
 
   "DockerRemoveContainerArguments" should {
-    "reify arguments when volumes should be removed" in {
+    "build ordered command line arguments when volumes should be removed" in {
       val input = DockerRemoveContainerArguments("name", volumes = true)
-      val expected = DockerRemoveContainerReifiedCommandLineArguments("name", Some("--volumes=true"))
+      val expected = Seq(removeContainer, "--volumes=true", "name")
 
-      val output = input.toDockerProcessReifiedCommandLineArguments
+      val output = input.argumentSequence
 
       output must_== expected
     }
 
-    "reify arguments when volumes should not be removed" in {
+    "build ordered command line arguments when volumes should not be removed" in {
       val input = DockerRemoveContainerArguments("name", volumes = false)
-      val expected = DockerRemoveContainerReifiedCommandLineArguments("name", Some("--volumes=false"))
+      val expected = Seq(removeContainer, "--volumes=false",  "name")
 
-      val output = input.toDockerProcessReifiedCommandLineArguments
+      val output = input.argumentSequence
 
       output must_== expected
     }
