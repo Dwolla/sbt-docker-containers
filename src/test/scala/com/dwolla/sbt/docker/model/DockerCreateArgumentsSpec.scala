@@ -33,7 +33,7 @@ class DockerCreateArgumentsSpec extends Specification with AdditionalSeqMatchers
       output must containSlice("--publish", "1983:42")
       output must contain("--publish-all")
       output must containSlice("--link", "a:b")
-      output must containSlice("--env", "env:value")
+      output must containSlice("--env", "env=value")
       output must containSlice("--env", "PASS_THROUGH")
     }
 
