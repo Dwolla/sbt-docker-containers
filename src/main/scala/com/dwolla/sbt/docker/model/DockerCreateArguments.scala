@@ -90,7 +90,7 @@ object DockerCreateArguments {
   case class Environment(env: (String, Option[String])*) extends MappingArgument {
     override lazy val definedMapping: Seq[String] = env.map {
       case (key, maybeValue) ⇒
-        val value = maybeValue.map(host ⇒ s":$host").getOrElse("")
+        val value = maybeValue.map(host ⇒ s"=$host").getOrElse("")
         s"$key$value"
     }
     override val argumentLabel: String = environment
