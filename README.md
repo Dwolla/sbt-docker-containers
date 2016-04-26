@@ -8,10 +8,9 @@ Requires the [`docker`](http://docker.com) command-line tool to be on the path (
 
 In `project/plugins.sbt`, add the following:
 
-    addSbtPlugin("com.dwolla.sbt" % "docker-containers" % "1.0.3")
+    addSbtPlugin("com.dwolla.sbt" % "docker-containers" % "***VERSION***")
 
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
-    resolvers += "artifactory" at "http://artifactory.dwolla.net:8081/artifactory/repo"
 
 Then enable the plugin in `build.sbt`. For example:
 

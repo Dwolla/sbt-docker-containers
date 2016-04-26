@@ -1,7 +1,5 @@
 import java.lang.System._
 
-lazy val artifactoryBase = "http://artifactory.dwolla.net:8081/artifactory"
-
 lazy val buildVersion = {
   val mainVersion = "1.1"
   val minorVersion = Option(getenv("BUILD_NUMBER"))
@@ -17,31 +15,28 @@ lazy val specs2Version = "3.6.6"
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
   name := "docker-containers",
-  homepage := Some(url("https://stash.dwolla.net/projects/SUP/repos/sbt-docker-containers/browse")),
+  homepage := Some(url("https://github.com/Dwolla/sbt-docker-containers")),
+  description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
+  licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
   version := buildVersion,
   scalaVersion := "2.10.6",
   sbtPlugin := true,
-  resolvers += "artifactory" at s"$artifactoryBase/repo",
+  startYear := Option(2016),
   libraryDependencies ++= Seq(
     "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
     "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
   )
 )
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
-
-lazy val publishSettings = Seq(
-  credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
-  publishArtifact in(Compile, packageBin) := true,
-  publishArtifact in(Compile, packageDoc) := false,
-  publishArtifact in(Compile, packageSrc) := true,
-  publishTo := {
-    if (buildVersion.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at s"$artifactoryBase/libs-snapshot-local")
-    else
-      Some("releases" at s"$artifactoryBase/libs-release-local")
-  }
+lazy val bintraySettings = Seq(
+  bintrayVcsUrl := Some("git@github.com:Dwolla/sbt-docker-containers.git"),
+  publishMavenStyle := false,
+  bintrayRepository := "sbt-plugins",
+  bintrayOrganization in bintray := Option("dwolla"),
+  pomIncludeRepository := { _ ⇒ false }
 )
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
 
 lazy val pipeline = InputKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
 pipeline := scripted.dependsOn(test in Test).evaluated
@@ -54,6 +49,5 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
 //scriptedBufferLog := false
 
 val dockerContainersPlugin = (project in file("."))
-  .settings(buildSettings: _*)
-  .settings(publishSettings: _*)
+  .settings(buildSettings ++ bintraySettings: _*)
   .settings(ScriptedPlugin.scriptedSettings: _*)
