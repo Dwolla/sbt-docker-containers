@@ -1,5 +1,9 @@
 # Docker Containers Plugin
 
+[![Travis](https://img.shields.io/travis/Dwolla/sbt-docker-containers.svg?maxAge=2592000&style=flat-square)](https://travis-ci.org/Dwolla/sbt-docker-containers)
+[![Bintray](https://img.shields.io/bintray/v/dwolla/sbt-plugins/docker-containers.svg?maxAge=2592000&style=flat-square)](https://bintray.com/dwolla/sbt-plugins/docker-containers/view)
+[![license](https://img.shields.io/github/license/Dwolla/sbt-docker-containers.svg?maxAge=2592000&style=flat-square)]()
+
 SBT Plugin that adds tasks to manage Docker containers using images created by the [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/) Docker packaging format.
 
 Requires the [`docker`](http://docker.com) command-line tool to be on the path (although a future version may use the Docker REST API to make this unnecessary).

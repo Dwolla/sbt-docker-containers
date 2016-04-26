@@ -2,10 +2,9 @@ import java.lang.System._
 
 lazy val buildVersion = {
   val mainVersion = "1.1"
-  val minorVersion = Option(getenv("BUILD_NUMBER"))
-  val verificationSuffix = Option(getenv("JOB_NAME")).filterNot(_.toLowerCase.endsWith("_publish")).map(name ⇒ s"-$name").getOrElse("")
+  val minorVersion = Option(getenv("TRAVIS_BUILD_NUMBER"))
   minorVersion match {
-    case Some(v: String) ⇒ s"$mainVersion.$v$verificationSuffix"
+    case Some(v: String) ⇒ s"$mainVersion.$v"
     case None ⇒ mainVersion + "-SNAPSHOT"
   }
 }

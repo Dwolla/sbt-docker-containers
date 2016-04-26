@@ -1,0 +1,19 @@
+services: docker
+sudo: true
+language: scala
+
+scala:
+  - 2.10.6
+
+script: sbt ++$TRAVIS_SCALA_VERSION pipeline
+
+before_deploy:
+  - mkdir -p $HOME/.bintray
+  - openssl aes-256-cbc -K $encrypted_0fde879eb030_key -iv $encrypted_0fde879eb030_iv -in .credentials.enc -out $HOME/.bintray/.credentials -d
+
+deploy:
+  provider: script
+  script: sbt publish
+  on:
+    branch: master
+
