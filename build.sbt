@@ -28,10 +28,10 @@ lazy val buildSettings = Seq(
 )
 
 lazy val bintraySettings = Seq(
-  bintrayVcsUrl := Some("git@github.com:Dwolla/sbt-docker-containers.git"),
+  bintrayVcsUrl := Some("https://github.com/Dwolla/sbt-docker-containers"),
   publishMavenStyle := false,
   bintrayRepository := "sbt-plugins",
-  bintrayOrganization in bintray := Option("dwolla"),
+  bintrayOrganization := Option("dwolla"),
   pomIncludeRepository := { _ ⇒ false }
 )
 
