@@ -16,6 +16,11 @@ In `project/plugins.sbt`, add the following:
 
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
 
+    resolvers ++= Seq(
+      Resolver.bintrayIvyRepo("dwolla", "sbt-plugins"),
+      Resolver.bintrayIvyRepo("dwolla", "maven")
+    )
+
 Then enable the plugin in `build.sbt`. For example:
 
     val app = (project in file(".")).enablePlugins(DockerContainerPlugin)
