@@ -1,7 +1,7 @@
 import java.lang.System._
 
 lazy val buildVersion = {
-  val mainVersion = "1.1"
+  val mainVersion = "1.2"
   val minorVersion = Option(getenv("TRAVIS_BUILD_NUMBER"))
   minorVersion match {
     case Some(v: String) ⇒ s"$mainVersion.$v"
@@ -9,7 +9,7 @@ lazy val buildVersion = {
   }
 }
 
-lazy val specs2Version = "3.6.6"
+lazy val specs2Version = "3.8.5"
 
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
@@ -35,7 +35,7 @@ lazy val bintraySettings = Seq(
   pomIncludeRepository := { _ ⇒ false }
 )
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.4")
 
 lazy val pipeline = InputKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
 pipeline := scripted.dependsOn(test in Test).evaluated
