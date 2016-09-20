@@ -16,4 +16,3 @@ deploy:
   script: sbt publish
   on:
     branch: master
-
