@@ -1,30 +1,25 @@
-import java.lang.System._
-
-lazy val buildVersion = {
-  val mainVersion = "1.2"
-  val minorVersion = Option(getenv("TRAVIS_BUILD_NUMBER"))
-  minorVersion match {
-    case Some(v: String) ⇒ s"$mainVersion.$v"
-    case None ⇒ mainVersion + "-SNAPSHOT"
-  }
-}
-
-lazy val specs2Version = "3.8.5"
-
 lazy val buildSettings = Seq(
   organization := "com.dwolla.sbt",
   name := "docker-containers",
   homepage := Some(url("https://github.com/Dwolla/sbt-docker-containers")),
   description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
   licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-  version := buildVersion,
   scalaVersion := "2.10.6",
   sbtPlugin := true,
   startYear := Option(2016),
-  libraryDependencies ++= Seq(
-    "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
-    "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
-  )
+  libraryDependencies ++= {
+    val specs2Version = "3.8.6"
+
+    Seq(
+      "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
+      "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
+    )
+  },
+  releaseVersionBump := sbtrelease.Version.Bump.Minor,
+  releaseProcess --= {
+    import ReleaseTransformations._
+    Seq(runClean, runTest, publishArtifacts)
+  }
 )
 
 lazy val bintraySettings = Seq(
@@ -35,7 +30,7 @@ lazy val bintraySettings = Seq(
   pomIncludeRepository := { _ ⇒ false }
 )
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.2.1")
 
 lazy val pipeline = InputKey[Unit]("pipeline", "Runs the full build pipeline: compile, test, integration tests")
 pipeline := scripted.dependsOn(test in Test).evaluated

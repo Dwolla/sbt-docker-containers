@@ -1,12 +1,12 @@
 package com.dwolla.sbt.docker
 
+import com.dwolla.sbt.docker.model._
 import com.typesafe.sbt.packager.docker.DockerPlugin
-import model.{DockerCreateArguments, DockerProcessBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStartArguments, DockerStopArguments}
 import sbt.Keys._
 import sbt._
 
 import scala.language.postfixOps
-import util.Try
+import scala.util.Try
 
 object DockerContainerPlugin extends AutoPlugin {
 
@@ -29,27 +29,24 @@ object DockerContainerPlugin extends AutoPlugin {
   lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker
   lazy val dockerStartArguments = TaskKey[DockerStartArguments]("dockerStartArguments", "task key used internally for testing the startLocal task") in Docker
   lazy val dockerCleanArguments = TaskKey[Seq[DockerProcessBuilder]]("dockerCleanArguments", "task key used internally for testing the docker:clean task") in Docker
-  lazy val logger = TaskKey[Logger]("logger", "logger from streams") in Docker
 
   lazy val tasks = Seq(
-    logger <<= streams map { (streams) ⇒ streams.log },
-    dockerCreateArguments <<= (
-      name in createLocalDockerContainer,
-      dockerTarget in Docker,
-      dockerContainerMemoryLimit,
-      dockerContainerPortPublishing,
-      dockerContainerPublishAllPorts,
-      dockerContainerLinks,
-      dockerContainerAdditionalEnvironmentVariables
-      ) map DockerCreateArguments.fromBasicSbtTypes,
-    createLocalDockerContainer <<= (dockerCreateArguments, logger, publishLocal in Docker) map runDockerCreateAndReturnContainerName,
+    dockerCreateArguments := DockerCreateArguments.fromBasicSbtTypes(
+      (name in createLocalDockerContainer).value,
+      dockerAlias.value.versioned,
+      dockerContainerMemoryLimit.value,
+      dockerContainerPortPublishing.value,
+      dockerContainerPublishAllPorts.value,
+      dockerContainerLinks.value,
+      dockerContainerAdditionalEnvironmentVariables.value),
+    createLocalDockerContainer := runDockerCreateAndReturnContainerName(dockerCreateArguments.value, streams.value.log, (publishLocal in Docker).value),
 
-    dockerStartArguments <<= createLocalDockerContainer map DockerStartArguments.apply,
-    startLocalDockerContainer <<= (dockerStartArguments, logger) map runDockerProcess,
-    runLocalDockerContainer <<= startLocalDockerContainer,
+    dockerStartArguments := DockerStartArguments(createLocalDockerContainer.value),
+    startLocalDockerContainer := runDockerProcess(dockerStartArguments.value, streams.value.log),
+    runLocalDockerContainer := startLocalDockerContainer.value,
 
-    dockerCleanArguments <<= (name in createLocalDockerContainer, dockerTarget in Docker) map toDockerCleanProcesses,
-    clean in Docker <<= (dockerCleanArguments, logger, clean) map runDockerProcessesIgnoringErrors
+    dockerCleanArguments := toDockerCleanProcesses((name in createLocalDockerContainer).value, dockerAlias.value.versioned),
+    clean in Docker := runDockerProcessesIgnoringErrors(dockerCleanArguments.value, streams.value.log, clean.value)
   )
 
   def runDockerProcess(processBuilder: DockerProcessBuilder, logger: Logger): Unit = {
