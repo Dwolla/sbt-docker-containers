@@ -12,14 +12,19 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt -name "*.lock" -delete
 
-scala:
-  - 2.10.6
-
 env:
   global:
     - secure: "Nw9jhj8Kt/ApiBpDuTd12Fqvs2eBspV5ZjQYsUXDipT7XzdLOhPE7WHD6xtC7X3MJRFtwXddq/Ud0NFxcqqfUwInRk51zPVoBr1eLY55Xz8ChXEmdkh/Vig1IW9YTkko5m7urPSK6zEFYdv3uTjkr6Pb1ZnVnt9mwHmLrSxP40Nremy812ZJTw7DhFf1y1/rq6EvsiBb2ifBW/vaWrSk3uWm1UAHFOP4vsuUqguamXAz2KSfxbac6aZQskHsGoc/hBGic1Kon/ZC+dexl+YEte4I56HtnddaR8dHRiKUOmf6JUck8DSJbLMEWGuzt4tVJrA7VLQo3R46QbIv1rQEPB9RVVQQs/aK9WonLrn2sIkoE7QhAKcN6YzLpCvElcl5+j2Uu6frMZUTwuxhOpKMgOZbKFqzqj2G3HaeK89dsOKHtv50T3bM61A7aHhYlN34EuiKPAriub76yzRdNUOsjz3mSfRKvEyQspgl3qVHwCaGV2ls6WlnCCVnaTW2EMuTf3WlcOUTVUG3sk8LgWNiGQ+FZx6OgeCL4XHhgSmUtpUcXuv3qkjfrtM/lp0Z+IKco8vqaXWgZkDqP49GhO5ncyPec+IcopmEZsUVlf3u++zdJbjymLuQDVruWkTkttHgyvqMpxkCTQTIbP0hMebtkzVfvVVyhfnnuwasGM3m17M="
 
-script: sbt ++$TRAVIS_SCALA_VERSION pipeline
+matrix:
+  include:
+  - env: SBT_VERSION="0.13.16"
+    jdk: openjdk7
+  - env: SBT_VERSION="1.0.0-RC3"
+    jdk: oraclejdk8
+
+script:
+  - sbt "^^${SBT_VERSION}" pipeline
 
 before_deploy:
   - mkdir -p $HOME/.bintray
@@ -30,9 +35,9 @@ deploy:
     script: .travis/release.sh
     on:
       branch: master
-      condition: $(git log -n1 --format=format:"%an") != "Dwolla Bot"
+      condition: $SBT_VERSION == "0.13.16" && $(git log -n1 --format=format:"%an") != "Dwolla Bot"
   - provider: script
-    script: sbt ++$TRAVIS_SCALA_VERSION publish
+    script: sbt "^^${SBT_VERSION}" publish
     on:
       tags: true
       condition: $(git log -n1 --format=format:"%an") == "Dwolla Bot"
