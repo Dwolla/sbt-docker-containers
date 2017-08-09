@@ -1,17 +1,16 @@
 package com.dwolla.sbt.docker
 
-import com.dwolla.sbt.docker.DockerContainerPlugin.{baseDockerContainerSettings, defaultValues, projectSettings, requires, tasks}
+import com.dwolla.sbt.docker.DockerContainerPlugin._
+import com.dwolla.sbt.docker.model.DockerCreateArguments.ContainerName
+import com.dwolla.sbt.docker.model._
 import com.typesafe.sbt.packager.docker.DockerPlugin
-import model.DockerCreateArguments.ContainerName
-import model.{DockerCreateArguments, DockerProcessBuilder, DockerRemoveContainerArguments, DockerRemoveImageArguments, DockerStopArguments}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import sbt._
+import sbt.Logger
 
-/**
- * If any of these tests fail, make sure mockito comes AFTER specs2 on the test classpath. this seems to be an issue in IntelliJ.
- */
+import scala.sys.process._
+
 class DockerContainerPluginSpec extends Specification with Mockito {
 
   trait Setup extends Scope {
