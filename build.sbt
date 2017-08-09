@@ -19,11 +19,7 @@ lazy val buildSettings = Seq(
       "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
     )
   },
-  releaseVersionBump := sbtrelease.Version.Bump.Minor,
-  releaseProcess --= {
-    import ReleaseTransformations._
-    Seq(runClean, runTest, publishArtifacts)
-  }
+  releaseVersionBump := sbtrelease.Version.Bump.Minor
 )
 
 lazy val bintraySettings = Seq(
