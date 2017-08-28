@@ -2,7 +2,7 @@ package com.dwolla.sbt.docker.model
 
 import com.dwolla.sbt.docker.DockerCommandLineOptions._
 import org.specs2.mutable.Specification
-import sbt.Process
+import scala.sys.process.Process
 
 class DockerProcessBuilderSpec extends Specification {
 
