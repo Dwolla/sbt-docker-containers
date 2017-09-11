@@ -15,4 +15,5 @@ object DockerCommandLineOptions {
   val memory = "--memory"
   val volumes = "--volumes"
   val environment = "--env"
+  val network = "--network"
 }

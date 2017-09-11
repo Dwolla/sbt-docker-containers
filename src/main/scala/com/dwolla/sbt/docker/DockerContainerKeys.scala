@@ -9,6 +9,7 @@ trait DockerContainerKeys {
   lazy val startLocalDockerContainer = TaskKey[Unit]("startLocal", "Start the Docker container. Depends on createLocal to create the container to be started.") in Docker
 
   lazy val dockerContainerMemoryLimit = settingKey[Option[String]]("memory limit for created Docker container. e.g., Option('192M')")
+  lazy val dockerContainerNetwork = settingKey[Option[String]]("Connect a container to a private network")
 
   lazy val dockerContainerPortPublishing = settingKey[Map[Int, Option[Int]]]("Docker container:host port mappings")
   lazy val dockerContainerPublishAllPorts = settingKey[Boolean]("Auto-map all exposed ports")

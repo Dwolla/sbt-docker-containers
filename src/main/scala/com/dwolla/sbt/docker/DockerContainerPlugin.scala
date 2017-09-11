@@ -23,7 +23,8 @@ object DockerContainerPlugin extends AutoPlugin {
     dockerContainerPublishAllPorts := false,
     dockerContainerPortPublishing := Map.empty[Int, Option[Int]],
     dockerContainerLinks := Map.empty[String, String],
-    dockerContainerAdditionalEnvironmentVariables := Map.empty[String, Option[String]]
+    dockerContainerAdditionalEnvironmentVariables := Map.empty[String, Option[String]],
+    dockerContainerNetwork := None
   )
 
   lazy val dockerCreateArguments = TaskKey[DockerCreateArguments]("dockerCreateArguments", "task key used internally for testing the createLocal task") in Docker
@@ -38,7 +39,9 @@ object DockerContainerPlugin extends AutoPlugin {
       dockerContainerPortPublishing.value,
       dockerContainerPublishAllPorts.value,
       dockerContainerLinks.value,
-      dockerContainerAdditionalEnvironmentVariables.value),
+      dockerContainerAdditionalEnvironmentVariables.value,
+      dockerContainerNetwork.value
+    ),
     createLocalDockerContainer := runDockerCreateAndReturnContainerName(dockerCreateArguments.value, streams.value.log, (publishLocal in Docker).value),
 
     dockerStartArguments := DockerStartArguments(createLocalDockerContainer.value),
