@@ -33,7 +33,7 @@ object DockerContainerPlugin extends AutoPlugin {
   lazy val tasks = Seq(
     dockerCreateArguments := DockerCreateArguments.fromBasicSbtTypes(
       (name in createLocalDockerContainer).value,
-      dockerAlias.value.versioned,
+      dockerAlias.value.toString,
       dockerContainerMemoryLimit.value,
       dockerContainerPortPublishing.value,
       dockerContainerPublishAllPorts.value,
@@ -45,7 +45,7 @@ object DockerContainerPlugin extends AutoPlugin {
     startLocalDockerContainer := runDockerProcess(dockerStartArguments.value, streams.value.log),
     runLocalDockerContainer := startLocalDockerContainer.value,
 
-    dockerCleanArguments := toDockerCleanProcesses((name in createLocalDockerContainer).value, dockerAlias.value.versioned),
+    dockerCleanArguments := toDockerCleanProcesses((name in createLocalDockerContainer).value, dockerAlias.value.toString),
     clean in Docker := runDockerProcessesIgnoringErrors(dockerCleanArguments.value, streams.value.log, clean.value)
   )
 

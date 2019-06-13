@@ -7,7 +7,7 @@ lazy val buildSettings = Seq(
   crossSbtVersions := Vector("1.2.8"),
   sbtPlugin := true,
   startYear := Option(2016),
-  addSbtPlugin("com.typesafe.sbt" %% "sbt-native-packager" % "1.2.2"),
+  addSbtPlugin("com.typesafe.sbt" %% "sbt-native-packager" % "1.3.22"),
   libraryDependencies ++= {
     val specs2Version = "4.5.1"
 
