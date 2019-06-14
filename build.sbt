@@ -4,19 +4,15 @@ lazy val buildSettings = Seq(
   homepage := Some(url("https://github.com/Dwolla/sbt-docker-containers")),
   description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
   licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-  crossSbtVersions := Vector("1.0.0", "0.13.16"),
+  crossSbtVersions := Vector("1.2.8"),
   sbtPlugin := true,
   startYear := Option(2016),
+  addSbtPlugin("com.typesafe.sbt" %% "sbt-native-packager" % "1.3.22"),
   libraryDependencies ++= {
-    import sbt.Defaults.sbtPluginExtra
-    val specs2Version = "3.8.6"
-    val currentSbtVersion = (sbtBinaryVersion in pluginCrossBuild).value
+    val specs2Version = "4.5.1"
 
     Seq(
-      // https://github.com/sbt/sbt/issues/3393
-      sbtPluginExtra("com.typesafe.sbt" % "sbt-native-packager" % "1.2.2", currentSbtVersion, scalaBinaryVersion.value),
-      "org.specs2"     %% "specs2-core"     % specs2Version  % "test",
-      "org.specs2"     %% "specs2-mock"     % specs2Version  % "test"
+      "org.specs2" %% "specs2-core" % specs2Version % Test,
     )
   },
   releaseVersionBump := sbtrelease.Version.Bump.Minor,
@@ -38,5 +34,5 @@ lazy val pipeline = InputKey[Unit]("pipeline", "Runs the full build pipeline: co
 pipeline := scripted.dependsOn(test in Test).evaluated
 
 val dockerContainersPlugin = (project in file("."))
+  .enablePlugins(SbtPlugin)
   .settings(buildSettings ++ bintraySettings: _*)
-  .settings(ScriptedPlugin.scriptedSettings: _*)

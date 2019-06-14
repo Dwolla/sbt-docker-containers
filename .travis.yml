@@ -2,6 +2,7 @@ services: docker
 dist: trusty
 sudo: required
 language: scala
+jdk: oraclejdk8
 
 cache:
   directories:
@@ -18,10 +19,7 @@ env:
 
 matrix:
   include:
-  - env: SBT_VERSION="0.13.16"
-    jdk: openjdk7
-  - env: SBT_VERSION="1.0.0"
-    jdk: oraclejdk8
+  - env: SBT_VERSION="1.2.8"
 
 script:
   - sbt "^^${SBT_VERSION}" pipeline
@@ -35,7 +33,7 @@ deploy:
     script: .travis/release.sh
     on:
       branch: master
-      condition: $SBT_VERSION == "1.0.0" && $(git log -n1 --format=format:"%an") != "Dwolla Bot"
+      condition: $SBT_VERSION == "1.2.8" && $(git log -n1 --format=format:"%an") != "Dwolla Bot"
   - provider: script
     script: sbt "^^${SBT_VERSION}" publish
     on:
