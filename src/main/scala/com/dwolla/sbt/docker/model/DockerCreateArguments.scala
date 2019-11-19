@@ -10,7 +10,8 @@ case class DockerCreateArguments(containerName: ContainerName,
                                  publishedPorts: PublishedPorts,
                                  autoPublishAllPorts: Boolean,
                                  linkedContainers: LinkedContainers,
-                                 environment: Environment)
+                                 environment: Environment,
+                                 network: Option[NetworkName])
   extends DockerProcessBuilder {
 
   override def argumentSequence: Seq[String] = (Some(DockerCommandLineOptions.dockerCreate) ++
@@ -21,11 +22,14 @@ case class DockerCreateArguments(containerName: ContainerName,
     ).flatMap(_.reified) ++
     publishAllExposedPorts ++
     memoryLimitToDockerCommand ++
+    networkToDockerCommand ++
     Some(imageName)).toSeq
 
   private def publishAllExposedPorts: Option[String] = if (autoPublishAllPorts) Some(publishAllPorts) else None
 
   private def memoryLimitToDockerCommand = memoryLimit.map(_.reified).getOrElse(missing)
+
+  private def networkToDockerCommand = network.map(_.reified).getOrElse(missing)
 }
 
 object DockerCreateArguments {
@@ -36,7 +40,8 @@ object DockerCreateArguments {
                         portPublishing: Map[Int, Option[Int]],
                         publishAllPorts: Boolean,
                         links: Map[String, String],
-                        env: Map[String, Option[String]]): DockerCreateArguments =
+                        env: Map[String, Option[String]],
+                        network: Option[String]): DockerCreateArguments =
     DockerCreateArguments(
       ContainerName(containerName),
       imageName,
@@ -44,7 +49,8 @@ object DockerCreateArguments {
       PublishedPorts(portPublishing.toSeq: _*),
       publishAllPorts,
       LinkedContainers(links.toSeq: _*),
-      Environment(env.toSeq: _*)
+      Environment(env.toSeq: _*),
+      network.map(NetworkName)
     )
 
   private val missing = Seq.empty[String]
@@ -69,6 +75,10 @@ object DockerCreateArguments {
     override def reified: Seq[String] = Seq(memory, limit)
   }
 
+  case class NetworkName(name: String) extends Argument {
+    override def reified: Seq[String] = Seq(network, name)
+  }
+
   case class PublishedPorts(publishedPorts: (Int, Option[Int])*) extends MappingArgument {
     val argumentLabel = publishPort
 
@@ -86,6 +96,8 @@ object DockerCreateArguments {
       case (name, alias) ⇒ s"$name:$alias"
     }
   }
+
+
 
   case class Environment(env: (String, Option[String])*) extends MappingArgument {
     override lazy val definedMapping: Seq[String] = env.map {

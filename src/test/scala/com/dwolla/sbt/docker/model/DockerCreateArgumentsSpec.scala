@@ -19,7 +19,8 @@ class DockerCreateArgumentsSpec extends Specification with AdditionalSeqMatchers
         publishedPorts = PublishedPorts(77 → DockerContainerPlugin.autoImport.AutoAssign, 1983 → Option(42)),
         autoPublishAllPorts = true,
         linkedContainers = LinkedContainers("a" → "b"),
-        environment = Environment("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru)
+        environment = Environment("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru),
+        network = Some(NetworkName("testnetwork"))
       )
 
       val output = input.argumentSequence
@@ -35,6 +36,7 @@ class DockerCreateArgumentsSpec extends Specification with AdditionalSeqMatchers
       output must containSlice("--link", "a:b")
       output must containSlice("--env", "env=value")
       output must containSlice("--env", "PASS_THROUGH")
+      output must containSlice("--network", "testnetwork")
     }
 
     "convert SBT types to case class" in new Setup {
@@ -45,7 +47,8 @@ class DockerCreateArgumentsSpec extends Specification with AdditionalSeqMatchers
         publishedPorts = PublishedPorts(77 → DockerContainerPlugin.autoImport.AutoAssign, 1983 → Option(42)),
         autoPublishAllPorts = true,
         linkedContainers = LinkedContainers("a" → "b"),
-        environment = Environment("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru)
+        environment = Environment("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru),
+        network = Some(NetworkName("testnetwork"))
       )
 
       val output = DockerCreateArguments.fromBasicSbtTypes(
@@ -55,7 +58,8 @@ class DockerCreateArgumentsSpec extends Specification with AdditionalSeqMatchers
         portPublishing = Map(77 → DockerContainerPlugin.autoImport.AutoAssign, 1983 → Option(42)),
         publishAllPorts = true,
         links = Map("a" → "b"),
-        env = Map("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru)
+        env = Map("env" → Option("value"), "PASS_THROUGH" → DockerContainerPlugin.autoImport.Passthru),
+        network = Some("testnetwork")
       )
 
       output must_== expected
