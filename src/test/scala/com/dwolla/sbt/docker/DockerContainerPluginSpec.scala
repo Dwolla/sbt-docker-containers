@@ -61,7 +61,7 @@ class DockerContainerPluginSpec(implicit ee: ExecutionEnv) extends Specification
         override def argumentSequence: Seq[String] = Seq("failing", "process")
       }
 
-      DockerContainerPlugin.runDockerProcessesIgnoringErrors(Seq(failingDockerProcessBuilder, dockerProcessBuilder(Seq("success"))), logger, Unit)
+      DockerContainerPlugin.runDockerProcessesIgnoringErrors(Seq(failingDockerProcessBuilder, dockerProcessBuilder(Seq("success"))), logger, ())
 
       logger.loggedMessages must contain((Level.Info, "docker failing process"))
       logger.loggedMessages must contain((Level.Info, "docker success"))
@@ -79,7 +79,7 @@ class DockerContainerPluginSpec(implicit ee: ExecutionEnv) extends Specification
         override def toDockerProcessBuilder: ProcessBuilder = sbtProcessBuilder
       }
 
-      val output = DockerContainerPlugin.runDockerCreateAndReturnContainerName(input, logger, Unit)
+      val output = DockerContainerPlugin.runDockerCreateAndReturnContainerName(input, logger, ())
 
       output must_== "name"
 
