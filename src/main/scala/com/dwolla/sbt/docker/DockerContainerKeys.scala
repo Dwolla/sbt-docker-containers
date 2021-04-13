@@ -5,8 +5,8 @@ import DockerPlugin.autoImport._
 import sbt.{TaskKey, settingKey}
 
 trait DockerContainerKeys {
-  lazy val createLocalDockerContainer = TaskKey[String]("createLocal", "Use the newly-built image and create a local container with the right parameters") in Docker
-  lazy val startLocalDockerContainer = TaskKey[Unit]("startLocal", "Start the Docker container. Depends on createLocal to create the container to be started.") in Docker
+  lazy val createLocalDockerContainer = Docker / TaskKey[String]("createLocal", "Use the newly-built image and create a local container with the right parameters")
+  lazy val startLocalDockerContainer = Docker / TaskKey[Unit]("startLocal", "Start the Docker container. Depends on createLocal to create the container to be started.")
 
   lazy val dockerContainerMemoryLimit = settingKey[Option[String]]("memory limit for created Docker container. e.g., Option('192M')")
 
