@@ -5,3 +5,4 @@ project/project/
 logs/
 .DS_Store
 *.orig
+.bsp/
