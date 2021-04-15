@@ -1,6 +1,5 @@
 inThisBuild(List(
   organization := "com.dwolla.sbt",
-  sonatypeProfileName := "com.dwolla",
   description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
   sbtPlugin := true,
   startYear := Option(2016),
@@ -41,5 +40,8 @@ inThisBuild(List(
   ),
 ))
 
-val `docker-containers` = (project in file("."))
+lazy val `docker-containers` = (project in file("."))
+  .settings(
+    sonatypeProfileName := "com.dwolla",
+  )
   .enablePlugins(SbtPlugin)
