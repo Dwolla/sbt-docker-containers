@@ -1,5 +1,6 @@
 inThisBuild(List(
   organization := "com.dwolla.sbt",
+  sonatypeProfileName := "com.dwolla",
   description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
   sbtPlugin := true,
   startYear := Option(2016),
@@ -21,6 +22,7 @@ inThisBuild(List(
       url("https://dwolla.com")
     )
   ),
+  githubWorkflowJavaVersions := Seq("adopt@1.8", "adopt@1.11"),
   githubWorkflowTargetTags ++= Seq("v*"),
   githubWorkflowPublishTargetBranches :=
     Seq(RefPredicate.StartsWith(Ref.Tag("v"))),

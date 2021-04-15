@@ -1,29 +1,25 @@
 # Docker Containers Plugin
 
-[![Travis](https://img.shields.io/travis/Dwolla/sbt-docker-containers.svg?maxAge=2592000&style=flat-square)](https://travis-ci.org/Dwolla/sbt-docker-containers)
-[![Bintray](https://img.shields.io/bintray/v/dwolla/sbt-plugins/docker-containers.svg?maxAge=2592000&style=flat-square)](https://bintray.com/dwolla/sbt-plugins/docker-containers/view)
+![Dwolla/sbt-docker-containers CI](https://github.com/Dwolla/sbt-docker-containers/actions/workflows/ci.yml/badge.svg)
 [![license](https://img.shields.io/github/license/Dwolla/sbt-docker-containers.svg?maxAge=2592000&style=flat-square)]()
 
 SBT Plugin that adds tasks to manage Docker containers using images created by the [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/) Docker packaging format.
 
-Requires the [`docker`](http://docker.com) command-line tool to be on the path (although a future version may use the Docker REST API to make this unnecessary).
+Requires the [`docker`](http://docker.com) command-line tool to be on the path.
 
 ## Installation and Enabling
 
 In `project/plugins.sbt`, add the following:
 
-    addSbtPlugin("com.dwolla.sbt" % "docker-containers" % "***VERSION***")
-
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
-
-    resolvers ++= Seq(
-      Resolver.bintrayIvyRepo("dwolla", "sbt-plugins"),
-      Resolver.bintrayIvyRepo("dwolla", "maven")
-    )
+```scala
+addSbtPlugin("com.dwolla.sbt" % "docker-containers" % "***VERSION***")
+```
 
 Then enable the plugin in `build.sbt`. For example:
 
-    val app = (project in file(".")).enablePlugins(DockerContainerPlugin)
+```scala
+val app = (project in file(".")).enablePlugins(DockerContainerPlugin)
+```
 
 This will also enable `DockerPlugin` from [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/).
 
@@ -31,7 +27,9 @@ This will also enable `DockerPlugin` from [sbt-native-packager](http://www.scala
 
 ### Container Memory Limitation
 
-    dockerContainerMemoryLimit := Option("192M")
+```scala
+dockerContainerMemoryLimit := Option("192M")
+```
 
 Sets the memory limit for the container. Maps to the `--memory` Docker command line option.
 
@@ -39,13 +37,17 @@ Sets the memory limit for the container. Maps to the `--memory` Docker command l
 
 #### `dockerContainerPublishAllPorts`
 
-    dockerContainerPublishAllPorts := true
+```scala
+dockerContainerPublishAllPorts := true
+```
 
 When set to true, Docker will map any exposed ports not specifically assigned to a host port to ports in the ephemeral range. This maps to the `--publish-all` Docker command line option.
 
 #### `dockerContainerPortPublishing`
 
-    dockerContainerPortPublishing := Map(8080 → Option(4242), 7777 → AutoAssign)
+```scala
+dockerContainerPortPublishing := Map(8080 → Option(4242), 7777 → AutoAssign)
+```
 
 Maps exposed container ports to either specific host ports, or `AutoAssign`, which indicates the port should be published on an ephemeral port. Each mapping corresponds to a `--publish {container}:{host}` Docker command line option.
 
@@ -53,26 +55,34 @@ In the given example, the container port `8080` will be published on host port `
 
 ### Container Name
 
-    (name in createLocalDockerContainer) := normalizedName.value
+```scala
+(name in createLocalDockerContainer) := normalizedName.value
+```
 
 The container name will be the normalized project name by default, but this can be overridden by setting `name in createLocalDockerContainer`.
 
 ### Linked Containers
 
-    dockerContainerLinks := Map("container-name" → "container-name")
+```scala
+dockerContainerLinks := Map("container-name" → "container-name")
+```
 
 Creates links from the new container to the specified container. The key side of the mapping is the actual container name, while the value side is the alias inside the new container. Typically, the alias matches the container name, but it can be different if needed.
 
 Links can also be added using the syntax below:
 
-    dockerContainerLinks += "container-name" → "container-name"
-    dockerContainerLinks ++= Map("container-name" → "container-name", "container-two" → "container-two")
+```scala
+dockerContainerLinks += "container-name" → "container-name"
+dockerContainerLinks ++= Map("container-name" → "container-name", "container-two" → "container-two")
+```
 
 Both of these examples will append new linked containers to any previously established in the build definition.
 
 ### Additional Environment Variables
 
-    dockerContainerAdditionalEnvironmentVariables := Map("NAME" → Option("value"), "FROM_HOST" → Passthru)
+```scala
+dockerContainerAdditionalEnvironmentVariables := Map("NAME" → Option("value"), "FROM_HOST" → Passthru)
+```
 
 Operators can augment or override the environment specified by the container’s image by giving mappings from the name of the environment variable to either the value or `Passthru`.
 
