@@ -7,7 +7,7 @@ queue_rules:
 pull_request_rules:
   - name: assign and label scala-steward's PRs
     conditions:
-      - author=scala-steward
+      - author=dwolla-oss-scala-steward[bot]
     actions:
       request_reviews:
         users: [bpholt]
@@ -15,14 +15,14 @@ pull_request_rules:
         add: [dependency-update]
   - name: automatic update pull requests
     conditions:
-      - author=scala-steward
+      - author=dwolla-oss-scala-steward[bot]
       - -conflict # skip PRs with conflicts
       - -draft # filter-out GH draft PRs
     actions:
       update:
   - name: merge scala-steward's PRs
     conditions:
-      - author=scala-steward
+      - author=dwolla-oss-scala-steward[bot]
       - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@11)
       - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@8)
     actions:
