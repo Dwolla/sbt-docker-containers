@@ -9,8 +9,6 @@ pull_request_rules:
     conditions:
       - author=dwolla-oss-scala-steward[bot]
     actions:
-      request_reviews:
-        users: [bpholt]
       label:
         add: [dependency-update]
   - name: automatic update pull requests
