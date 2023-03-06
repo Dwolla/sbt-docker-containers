@@ -11,6 +11,7 @@ ThisBuild / developers := List(
   )
 )
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("8"), JavaSpec.temurin("11"))
+ThisBuild / githubWorkflowScalaVersions := Seq("2.12")
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
   Seq(RefPredicate.StartsWith(Ref.Tag("v")))
