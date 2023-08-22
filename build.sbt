@@ -36,7 +36,7 @@ lazy val `docker-containers` = (project in file("."))
     sonatypeProfileName := "com.dwolla",
     addSbtPlugin("com.github.sbt" %% "sbt-native-packager" % "1.9.16"),
     libraryDependencies ++= {
-      val specs2Version = "4.20.0"
+      val specs2Version = "4.20.2"
 
       Seq(
         "org.specs2" %% "specs2-core" % specs2Version % Test,
