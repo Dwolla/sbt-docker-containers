@@ -1,8 +1,13 @@
 queue_rules:
   - name: default
-    conditions:
+    queue_conditions:
+      - author=dwolla-oss-scala-steward[bot]
       - status-success=Build and Test (ubuntu-latest, 2.12, temurin@11)
       - status-success=Build and Test (ubuntu-latest, 2.12, temurin@8)
+    merge_conditions:
+      - status-success=Build and Test (ubuntu-latest, 2.12, temurin@11)
+      - status-success=Build and Test (ubuntu-latest, 2.12, temurin@8)
+    merge_method: squash
 
 pull_request_rules:
   - name: assign and label scala-steward's PRs
@@ -19,11 +24,6 @@ pull_request_rules:
     actions:
       update:
   - name: merge scala-steward's PRs
-    conditions:
-      - author=dwolla-oss-scala-steward[bot]
-      - status-success=Build and Test (ubuntu-latest, 2.12, temurin@11)
-      - status-success=Build and Test (ubuntu-latest, 2.12, temurin@8)
+    conditions: []
     actions:
       queue:
-        method: squash
-        name: default
