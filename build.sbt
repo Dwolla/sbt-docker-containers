@@ -10,7 +10,8 @@ ThisBuild / developers := List(
     url("https://dwolla.com")
   )
 )
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("8"), JavaSpec.temurin("11"))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / tlJdkRelease := Option(8)
 ThisBuild / githubWorkflowScalaVersions := Seq("2.12")
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
