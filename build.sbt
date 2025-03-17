@@ -28,6 +28,11 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
+ThisBuild / tlBaseVersion := "1.5"
+ThisBuild / mergifyStewardConfig ~= { _.map {
+  _.withAuthor("dwolla-oss-scala-steward[bot]")
+    .withMergeMinors(true)
+}}
 
 lazy val `docker-containers` = (project in file("."))
   .settings(
