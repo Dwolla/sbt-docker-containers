@@ -10,24 +10,11 @@ ThisBuild / developers := List(
     url("https://dwolla.com")
   )
 )
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("8"), JavaSpec.temurin("11"))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / tlJdkRelease := Option(8)
 ThisBuild / githubWorkflowScalaVersions := Seq("2.12")
-ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
-ThisBuild / githubWorkflowPublishTargetBranches :=
-  Seq(RefPredicate.StartsWith(Ref.Tag("v")))
+ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / githubWorkflowBuild := Seq(WorkflowStep.Sbt(List("test", "scripted"), name = Some("Build and test project")))
-ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("ci-release")))
-ThisBuild / githubWorkflowPublish := Seq(
-  WorkflowStep.Sbt(
-    List("ci-release"),
-    env = Map(
-      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
-      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
-      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
-      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
-    )
-  )
-)
 ThisBuild / tlBaseVersion := "1.5"
 ThisBuild / mergifyStewardConfig ~= { _.map {
   _.withAuthor("dwolla-oss-scala-steward[bot]")
@@ -39,7 +26,7 @@ lazy val `docker-containers` = (project in file("."))
     sbtPlugin := true,
     description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
     sonatypeProfileName := "com.dwolla",
-    addSbtPlugin("com.github.sbt" %% "sbt-native-packager" % "1.9.16"),
+    addSbtPlugin("com.github.sbt" %% "sbt-native-packager" % "1.11.1"),
     libraryDependencies ++= {
       val specs2Version = "4.20.5"
 
