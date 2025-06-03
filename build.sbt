@@ -25,7 +25,6 @@ lazy val `docker-containers` = (project in file("."))
   .settings(
     sbtPlugin := true,
     description := "SBT plugin to define and manage Docker containers based on images creating using sbt-native-packager",
-    sonatypeProfileName := "com.dwolla",
     addSbtPlugin("com.github.sbt" %% "sbt-native-packager" % "1.11.1"),
     libraryDependencies ++= {
       val specs2Version = "4.20.5"
