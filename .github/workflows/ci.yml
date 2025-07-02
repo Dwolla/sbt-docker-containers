@@ -70,8 +70,16 @@ jobs:
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 
-      - name: Build and test project
+      - name: Test
         run: sbt '++ ${{ matrix.scala }}' test scripted
+
+      - name: Check binary compatibility
+        if: matrix.java == 'temurin@11' && matrix.os == 'ubuntu-22.04'
+        run: sbt '++ ${{ matrix.scala }}' mimaReportBinaryIssues
+
+      - name: Generate API documentation
+        if: matrix.java == 'temurin@11' && matrix.os == 'ubuntu-22.04'
+        run: sbt '++ ${{ matrix.scala }}' doc
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
