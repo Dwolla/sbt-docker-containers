@@ -19,7 +19,7 @@ ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / githubWorkflowBuild ~= { steps =>
   WorkflowStep.Sbt(List("test", "scripted"), name = Some("Test")) :: steps.filterNot(_.name.contains("Test")).toList
 }
-ThisBuild / tlBaseVersion := "1.5"
+ThisBuild / tlBaseVersion := "1.6"
 ThisBuild / tlVersionIntroduced:= Map("2.12" -> "1.2")
 ThisBuild / mergifyStewardConfig ~= { _.map {
   _.withAuthor("dwolla-oss-scala-steward[bot]")
